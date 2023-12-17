@@ -4,19 +4,42 @@
  * Print how long it took for all 3 promises to resolve.
  */
 
-
 function waitOneSecond() {
-
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve("1 Second");
+    }, 1000);
+  });
 }
 
 function waitTwoSecond() {
-
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve("2 Second");
+    }, 2000);
+  });
 }
 
 function waitThreeSecond() {
-
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve("3 Second");
+    }, 1000);
+  });
 }
 
 function calculateTime() {
-
+  let startTime = Date.now();
+  Promise.all([waitOneSecond(), waitTwoSecond(), waitThreeSecond()]).then(
+    (data) => {
+      console.log("data :", data);
+      console.log(
+        "All promise resolved: ",
+        Date.now() - startTime / 1000,
+        " seconds"
+      );
+    }
+  );
 }
+
+calculateTime();
