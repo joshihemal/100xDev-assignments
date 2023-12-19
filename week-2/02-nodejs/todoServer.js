@@ -39,11 +39,64 @@
 
   Testing the server - run `npm run test-todoServer` command in terminal
  */
-  const express = require('express');
-  const bodyParser = require('body-parser');
-  
-  const app = express();
-  
-  app.use(bodyParser.json());
-  
-  module.exports = app;
+const express = require("express");
+const bodyParser = require("body-parser");
+
+const app = express();
+
+app.use(bodyParser.json());
+
+let data = [];
+
+app.post("/todos", (req, res) => {
+  let reqData = req.body;
+  if (!reqData) {
+    throw new Error("Invalid request body");
+  }
+  reqData = {
+    id: Math.floor(Math.random() * 1000000),
+    title: reqData.title,
+    description: reqData.description,
+  };
+  data.push(reqData);
+  res.status(200).json({ message: "Todo added successfully" });
+});
+
+app.get("/todos", (req, res) => {
+  res.status(200).json({ message: "Todos retrieved successfully", data: data });
+});
+
+app.get("/todos/:id", (req, res) => {
+  let id = parseInt(req.params.id);
+  let index = data.findIndex((item) => item.id === id);
+  res
+    .status(200)
+    .json({ message: "Todo retrieved successfully", data: data[index] });
+});
+
+app.put("/todos/:id", (req, res) => {
+  let id = parseInt(req.params.id);
+  let index = data.findIndex((item) => item.id === id);
+  if (index !== -1) {
+    data[index].title = req.body.title;
+    data[index].description = req.body.description;
+    res.status(200).json(data[index]);
+  } else {
+    res.status(404).send();
+  }
+});
+
+app.delete("/todos/:id", (req, res) => {
+  let id = parseInt(req.params.id);
+  let index = data.findIndex((item) => item.id === id);
+  if (index !== -1) {
+    todos.splice(todoIndex, 1);
+    res.status(200).json({ message: "Todo deleted successfully" });
+  } else {
+    res.status(404).send();
+  }
+});
+
+app.listen(3000);
+
+module.exports = app;
