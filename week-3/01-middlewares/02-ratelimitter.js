@@ -1,6 +1,6 @@
-const request = require('supertest');
-const assert = require('assert');
-const express = require('express');
+const request = require("supertest");
+const assert = require("assert");
+const express = require("express");
 const app = express();
 // You have been given an express server which has a few endpoints.
 // Your task is to create a global middleware (app.use) which will
@@ -12,16 +12,40 @@ const app = express();
 // clears every one second
 
 let numberOfRequestsForUser = {};
+
 setInterval(() => {
-    numberOfRequestsForUser = {};
-}, 1000)
+  numberOfRequestsForUser = {};
+}, 1000);
 
-app.get('/user', function(req, res) {
-  res.status(200).json({ name: 'john' });
+app.use((req, res, next) => {
+  const userId = req.headers["user-id"];
+
+  // Initialize the request count for the user if not present
+  numberOfRequestsForUser[userId] = numberOfRequestsForUser[userId] || 0;
+  console.log(numberOfRequestsForUser);
+
+  // Check if the user has exceeded the limit
+  if (numberOfRequestsForUser[userId] >= 5) {
+    return res
+      .status(404)
+      .json({ error: "Rate limit exceeded. Try again later." });
+  }
+
+  // Increment the request count for the user
+  numberOfRequestsForUser[userId]++;
+
+  // Continue to the next middleware or route handler
+  next();
 });
 
-app.post('/user', function(req, res) {
-  res.status(200).json({ msg: 'created dummy user' });
+app.get("/user", function (req, res) {
+  res.status(200).json({ name: "john" });
 });
+
+app.post("/user", function (req, res) {
+  res.status(200).json({ msg: "created dummy user" });
+});
+
+app.listen(3000);
 
 module.exports = app;
