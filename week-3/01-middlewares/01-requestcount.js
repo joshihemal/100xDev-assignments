@@ -3,22 +3,15 @@ const assert = require("assert");
 const express = require("express");
 
 const app = express();
-let requestCount = 0;
+let errorCount = 0;
 
 // You have been given an express server which has a few endpoints.
-// Your task is to create a global middleware (app.use) which will
-// maintain a count of the number of requests made to the server in the global
-// requestCount variable
-
-const requestCountHandler = (req, res, next) => {
-  requestCount = requestCount + 1;
-  res.json({ count: requestCount });
-  next();
-};
-
-app.use(requestCountHandler);
+// Your task is to
+// 1. Ensure that if there is ever an exception, the end user sees a status code of 404
+// 2. Maintain the errorCount variable whose value should go up every time there is an exception in any endpoint
 
 app.get("/user", function (req, res) {
+  throw new Error("User not found");
   res.status(200).json({ name: "john" });
 });
 
@@ -26,10 +19,15 @@ app.post("/user", function (req, res) {
   res.status(200).json({ msg: "created dummy user" });
 });
 
-app.get("/requestCount", function (req, res) {
-  res.status(200).json({ requestCount });
+app.get("/errorCount", function (req, res) {
+  res.status(200).json({ errorCount });
 });
 
-app.listen(3000);
+// Error handling middleware
+app.use(function (err, req, res, next) {
+  errorCount += 1;
+  res.status(404).send({});
+});
 
+app.listen(3000, function () {});
 module.exports = app;
